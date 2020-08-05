@@ -26,7 +26,7 @@
       </section>
     </header>
     <main class="jobs">
-      <article v-for="job in filteredJobs" :key="job.id" class="job">
+      <article v-for="job in filteredJobs" :key="job.id" class="job" :class="{'job--selected': job.company === 'Photosnap' || job.company === 'Manage'}">
         <section class="job__content">
           <img class="job__logo" :src="job.logo" :alt="`${job.company} Logo`">
           <div class="job__information">
