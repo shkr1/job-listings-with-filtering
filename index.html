@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- displays site properly based on user's device -->
+
+  <link rel="icon" type="image/png" sizes="32x32" href="resources/images/favicon-32x32.png">
+
+  <title>Frontend Mentor | Job Listings</title>
+
+  <!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
+  <link rel="stylesheet" href="resources/css/reset.css">
+  <link rel="stylesheet" href="resources/css/fonts.css">
+  <link rel="stylesheet" href="resources/css/main.css">
+</head>
+<body>
+  <div class="site" id="app" :class="{open: filters.length > 0 }">
+    <header class="header">
+      <section v-show="filters.length > 0" class="filters">
+        <ul class="filters__list">
+          <li v-for="filter in filters" class="filter">
+            {{ filter }}<img @click="removeFilter(filter)" class="filter__close" src="resources/images/icon-remove.svg" alt="Remove filter icon">
+          </li>
+        </ul>
+        <a @click="clearFilters" class="filters__button">Clear</a>
+      </section>
+    </header>
+    <main class="jobs">
+      <article v-for="job in filteredJobs" :key="job.id" class="job">
+        <section class="job__content">
+          <img class="job__logo" :src="job.logo" :alt="`${job.company} Logo`">
+          <div class="job__information">
+            <div class="information">
+              <p class="job__company">{{ job.company }}</p>
+              <div v-show="job.new" class="badge badge--new">
+                <p class="badge__title">
+                  New!
+                </p>
+              </div>
+              <div v-show="job.featured" class="badge">
+                <p class="badge__title">
+                  Featured
+                </p>
+              </div>
+            </div>
+            <h5 class="job__position">{{ job.position }}</h5>
+            <ul class="job__listing">
+              <li class="job__posted">
+                {{ job.postedAt }}
+              </li>
+              <li class="job__contract">
+                {{ job.contract }}
+              </li>
+              <li class="job__location">
+                {{ job.location }}
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section class="job__requirements">
+          <p @click="addFilter(job.role)" class="requirement">{{ job.role }}</p>
+          <p @click="addFilter(job.level)" class="requirement">{{ job.level }}</p>
+          <p @click="addFilter(language)" v-for="language in job.languages" class="requirement">
+            {{ language }}
+          </p>
+          <p @click="addFilter(tool)" v-for="tool in job.tools" class="requirement">
+            {{ tool }}
+          </p>
+        </section>
+      </article>
+      <div class="attribution">
+        Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>.
+        Coded by <a href="https://github.com/shkr1" target="_blank">Gildardo Rosas</a>.
+      </div>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data() {
+        return {
+          jobs: [],
+          filters: [],
+          roles: [],
+          levels: [],
+          languages: [],
+          tools: []
+        }
+      },
+      computed: {
+        filteredJobs() {
+          if (this.filters.length == 0) {
+            return this.jobs;
+          }
+
+          return this.jobs.filter(job => {
+            let jobCategories = [job.role, job.level, ...job.tools, ...job.languages];
+            return this.filters.every(filter => jobCategories.includes(filter));
+          })
+        }
+      },
+      async mounted() {
+        let data = await window.fetch('./resources/data.json');
+        this.jobs = await data.json();
+      },
+      methods: {
+        addFilter(selectedFilter) {
+          if (this.filters.includes(selectedFilter)) {
+            return;
+          }
+          this.filters.push(selectedFilter);
+        },
+        removeFilter(selectedFilter) {
+          let tmpIdx = this.filters.findIndex(filter => filter === selectedFilter);
+          if (tmpIdx <= -1) {
+            return;
+          }
+          this.filters.splice(tmpIdx, 1);
+        },
+        clearFilters() {
+          this.filters = [];
+        }
+      }
+    })
+  </script>
+</body>
+</html>
